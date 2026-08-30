@@ -61,6 +61,10 @@ async function syncRideToStore(ride) {
     deliveryAcceptedAt: ride.deliveryAcceptedAt || null,
     deliveredAt: ride.deliveredAt || null,
     deliveryCompletedAt: ride.deliveryCompletedAt || null,
+    pricingAuthority: ride.deliveryPricing?.authority || 'motoboy_central',
+    deliveryPricing: ride.deliveryPricing || null,
+    deliveryEarning: ride.deliveryEarning ?? null,
+    deliveryFee: ride.deliveryFee ?? null,
     pickup: ride.pickup || null,
     delivery: ride.delivery || null,
     timeline: Array.isArray(ride.timeline) ? ride.timeline : [],
@@ -72,7 +76,7 @@ async function syncRideToStore(ride) {
     const selectedId = String(ride.selectedCourierId || '').trim();
     const selectedName = ride.selectedCourierName || '';
     const status = String(ride.status || '').toLowerCase();
-    const orderPatch = { logistics: { rideId: ride.id, status: `ride_${status || 'updated'}`, courierId: selectedId || null, courierName: selectedName || null }, updatedAt: payload.updatedAt };
+    const orderPatch = { logistics: { rideId: ride.id, status: `ride_${status || 'updated'}`, courierId: selectedId || null, courierName: selectedName || null, pricingAuthority: ride.deliveryPricing?.authority || 'motoboy_central', deliveryPricing: ride.deliveryPricing || null }, deliveryPricing: ride.deliveryPricing || null, deliveryEarning: ride.deliveryEarning ?? null, pricingAuthority: ride.deliveryPricing?.authority || 'motoboy_central', updatedAt: payload.updatedAt };
     if (['accepted', 'at_pickup', 'in_transit', 'cancel_requested', 'exception'].includes(status)) {
       Object.assign(orderPatch, { status: 'out_for_delivery', motoboyId: selectedId, motoboyName: selectedName, deliveryOffer: { status: 'accepted', motoboyId: selectedId, acceptedAt: ride.deliveryAcceptedAt || payload.updatedAt }, motoboyLocation: ride.motoboyLocation || null, locationSharing: ride.motoboyLocation ? 'active' : 'unavailable', deliveryAcceptedAt: ride.deliveryAcceptedAt || payload.updatedAt });
     } else if (status === 'delivered') {
